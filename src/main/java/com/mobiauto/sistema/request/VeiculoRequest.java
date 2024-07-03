@@ -1,6 +1,6 @@
 package com.mobiauto.sistema.request;
 
-import liquibase.pro.packaged.A;
+import com.mobiauto.sistema.enuns.MarcaVeiculo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,11 +10,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class OportunidadeRequest {
+public class VeiculoRequest {
 
     private Long id;
-
-    private ClienteRequest cliente;
-    private VeiculoRequest veiculo;
+    private MarcaVeiculo marca;
+    private String ano;
+    private String versao;
+    private String modelo;
 
 }

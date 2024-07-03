@@ -3,6 +3,7 @@ package com.mobiauto.sistema.domain;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,6 +12,7 @@ import javax.persistence.Table;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 @Table(name = "cliente", schema = "sistema")
 @Entity

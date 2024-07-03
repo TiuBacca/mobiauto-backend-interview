@@ -27,6 +27,10 @@ public class Oportunidade {
     @JoinColumn(name = "id_responsavel")
     private Usuario responsavel;
 
+    @ManyToOne
+    @JoinColumn(name = "id_veiculo")
+    private Veiculo veiculo;
+
     @Column(name = "abertura")
     private LocalDateTime abertura;
 
