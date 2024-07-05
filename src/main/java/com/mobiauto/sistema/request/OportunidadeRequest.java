@@ -16,5 +16,9 @@ public class OportunidadeRequest {
 
     private ClienteRequest cliente;
     private VeiculoRequest veiculo;
+    private RevendaRequest revenda;
+    private UsuarioRequest responsavel;
+
+    private String motivo;
 
 }

@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface RevendaRepository extends JpaRepository<Revenda, Long> {
+
+    Revenda getByCNPJ(String cnpj);
 }

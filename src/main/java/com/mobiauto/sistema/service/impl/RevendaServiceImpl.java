@@ -19,8 +19,7 @@ public class RevendaServiceImpl implements RevendaService {
     @Override
     public void salvarRevenda(RevendaRequest request) throws Exception {
         validaSalvarRevenda(request);
-        Revenda revenda = alimentaRevenda(request);
-        revendaRepository.save(revenda);
+        revendaRepository.save(alimentaRevenda(request));
     }
 
     private void validaSalvarRevenda(RevendaRequest request) throws Exception {

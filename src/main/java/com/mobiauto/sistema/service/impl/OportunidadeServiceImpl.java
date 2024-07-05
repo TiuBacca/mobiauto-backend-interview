@@ -2,14 +2,15 @@ package com.mobiauto.sistema.service.impl;
 
 import com.mobiauto.sistema.domain.Cliente;
 import com.mobiauto.sistema.domain.Oportunidade;
+import com.mobiauto.sistema.domain.Usuario;
+import com.mobiauto.sistema.domain.Veiculo;
 import com.mobiauto.sistema.exceptions.RegistroIncompletoException;
 import com.mobiauto.sistema.exceptions.RegistroNaoEncontradoException;
-import com.mobiauto.sistema.repository.ClienteRepository;
-import com.mobiauto.sistema.repository.OportunidadeRepository;
-import com.mobiauto.sistema.repository.VeiculoRepository;
+import com.mobiauto.sistema.repository.*;
 import com.mobiauto.sistema.request.OportunidadeRequest;
-import com.mobiauto.sistema.service.OportunidadeService;
 import com.mobiauto.sistema.service.ClienteService;
+import com.mobiauto.sistema.service.OportunidadeService;
+import com.mobiauto.sistema.service.VeiculoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,18 +18,32 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class OportunidadeServiceImpl implements OportunidadeService {
 
+    private final VeiculoService veiculoService;
     private final VeiculoRepository veiculoRepository;
     private final ClienteRepository clienteRepository;
     private final ClienteService clienteService;
+    private final RevendaRepository revendaRepository;
     private final OportunidadeRepository oportunidadeRepository;
+    private final UsuarioRepository usuarioRepository;
 
 
     @Override
     public void criarOportunidade(OportunidadeRequest request) throws Exception {
-        validaCriarNovaOportunidade(request);
+        oportunidadeRepository.save(alimenteOportunidade(validaCriarNovaOportunidade(request)));
+    }
+
+    @Override
+    public void redirecionarResponsavelOportunidade(OportunidadeRequest request) throws Exception {
+
     }
 
     private OportunidadeRequest validaCriarNovaOportunidade(OportunidadeRequest request) throws Exception {
+        if (request.getRevenda() == null) {
+            throw new RegistroIncompletoException("revenda");
+        } else {
+            revendaRepository.findById(request.getRevenda().getId()).orElseThrow(() -> new RegistroNaoEncontradoException("Revenda"));
+        }
+
         if (request.getCliente() == null) {
             throw new RegistroIncompletoException("cliente");
         } else {
@@ -65,16 +80,24 @@ public class OportunidadeServiceImpl implements OportunidadeService {
                 } else if (request.getVeiculo().getAno().isBlank()) {
                     throw new RegistroIncompletoException("ano");
                 }
+
+                Veiculo v = veiculoService.salvarVeiculo(request.getVeiculo());
+                request.getVeiculo().setId(v.getId());
             }
         }
 
         return request;
     }
 
-    private Oportunidade alimenteOportunidade(OportunidadeRequest request) {
-        Oportunidade oportunidade = (request.getId() != null) ? oportunidadeRepository.findById(request.getId()).orElse(new Oportunidade()) : new Oportunidade();
+    private Oportunidade alimenteOportunidade(OportunidadeRequest request) throws  Exception{
+        Oportunidade oportunidade = new Oportunidade();
+        oportunidade.setVeiculo(veiculoRepository.findById(request.getVeiculo().getId()).get());
+        oportunidade.setRevenda(revendaRepository.findById(request.getRevenda().getId()).get());
+        if(request.getResponsavel() != null){
+            Usuario responsavel = usuarioRepository.findById(request.getResponsavel().getId()).orElseThrow( () -> new RegistroNaoEncontradoException("Responsável"));
+            oportunidade.setResponsavel(responsavel);
+        }
 
-
-        return null;
+        return oportunidade;
     }
 }

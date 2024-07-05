@@ -1,43 +1,41 @@
 package com.mobiauto.sistema.service.impl;
 
+import com.mobiauto.sistema.Util;
 import com.mobiauto.sistema.domain.Usuario;
 import com.mobiauto.sistema.domain.UsuarioRevenda;
 import com.mobiauto.sistema.enuns.CargoUsuario;
 import com.mobiauto.sistema.exceptions.RegistroIncompletoException;
 import com.mobiauto.sistema.exceptions.RegistroNaoEncontradoException;
+import com.mobiauto.sistema.exceptions.UsuarioSemPermissaoException;
 import com.mobiauto.sistema.repository.RevendaRepository;
 import com.mobiauto.sistema.repository.UsuarioRepository;
 import com.mobiauto.sistema.repository.UsuarioRevendaRepository;
+import com.mobiauto.sistema.request.RevendaRequest;
 import com.mobiauto.sistema.request.UsuarioRequest;
 import com.mobiauto.sistema.request.UsuarioRevendaRequest;
 import com.mobiauto.sistema.service.UsuarioRevendaService;
 import com.mobiauto.sistema.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class UsuarioServiceImpl implements UsuarioService {
 
-    private UsuarioRevendaService usuarioRevendaService;
-    private UsuarioRevendaRepository usuarioRevendaRepository;
-    private RevendaRepository revendaRepository;
-    private UsuarioRepository usuarioRepository;
-    private PasswordEncoder passwordEncoder;
+    private final UsuarioRevendaService usuarioRevendaService;
+    private final UsuarioRevendaRepository usuarioRevendaRepository;
+    private final RevendaRepository revendaRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public void salvarUsuario(UsuarioRequest request) throws Exception {
         validaSalvarUsuario(request);
-        Usuario usuario = (request.getId() != null) ? usuarioRepository.findById(request.getId()).orElse(new Usuario()) : new Usuario();
-        usuario = usuarioRepository.save(usuario);
+        Usuario usuario =  usuarioRepository.save(alimentaUsuario(request));
         if(request.getId() == null){
             request.setId(usuario.getId());
-            usuarioRevendaService.salvarUsuarioRevenda(UsuarioRevendaRequest.builder().usuario(request).revenda(request.getRevenda()).build());
+            usuarioRevendaService.salvarUsuarioRevenda(UsuarioRevendaRequest.builder().usuario(request).revenda(request.getRevenda()).cargo(request.getCargo()).build());
         } else {
             UsuarioRevenda ur = usuarioRevendaRepository.findByUsuarioAndRevenda(request.getId(), request.getRevenda().getId());
             if (ur != null){
@@ -48,6 +46,14 @@ public class UsuarioServiceImpl implements UsuarioService {
                 }
             }
         }
+    }
+
+    @Override
+    public Usuario getUsuarioLogado() throws Exception {
+        String emailLogado = Util.getEmailUsuarioLogado();
+        return usuarioRepository.findByEmail(emailLogado)
+                .orElseThrow(() -> new RegistroNaoEncontradoException("Usuário não encontrado para o email: " + emailLogado));
+
     }
 
     private void validaSalvarUsuario(UsuarioRequest request) throws Exception {
@@ -67,6 +73,8 @@ public class UsuarioServiceImpl implements UsuarioService {
             }
 
             revendaRepository.findById(request.getRevenda().getId()).orElseThrow(() -> new RegistroNaoEncontradoException("Revenda"));
+            validaPermissaoSalvarNovoUsuario(request.getRevenda());
+
             if (request.getCargo() != null && !request.getCargo().isBlank()) {
                 try {
                     CargoUsuario.valueOf(request.getCargo());
@@ -93,27 +101,19 @@ public class UsuarioServiceImpl implements UsuarioService {
             usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
         }
 
-
-
         return usuario;
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        Optional<Usuario> usuario = (Optional<Usuario>) usuarioRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException(username));
+    private void validaPermissaoSalvarNovoUsuario(RevendaRequest request) throws Exception {
+        Usuario logado = getUsuarioLogado();
+        UsuarioRevenda userRevenda = usuarioRevendaRepository.findByUsuarioAndRevenda(logado.getId(), request.getId());
+        if(userRevenda != null ){
+            if (userRevenda.getCargo() == CargoUsuario.ADMINISTRADOR || userRevenda.getCargo() == CargoUsuario.PROPRIETARIO){
+                return;
+            }
+        }
+        throw new UsuarioSemPermissaoException();
 
-        return org.springframework.security.core.userdetails.User.builder()
-                .username(usuario.get().getEmail()) // Usando email como username para a autenticação
-                .password(usuario.get().getSenha()) // Senha criptografada do banco de dados
-                .roles("USER") // Pode adicionar roles/authorities conforme necessário
-                .build();
     }
-
-    public boolean authenticate(String email, String senha) {
-        UserDetails userDetails = loadUserByUsername(email);
-        return passwordEncoder.matches(senha, userDetails.getPassword());
-    }
-
 }
