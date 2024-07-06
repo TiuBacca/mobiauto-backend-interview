@@ -6,4 +6,6 @@ import com.mobiauto.sistema.request.UsuarioRevendaRequest;
 public interface UsuarioRevendaService {
 
     void salvarUsuarioRevenda(UsuarioRevendaRequest request) throws  Exception;
+
+    void alterarCargoUsuario(UsuarioRevendaRequest request) throws Exception;
 }

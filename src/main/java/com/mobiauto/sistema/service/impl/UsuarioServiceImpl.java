@@ -116,4 +116,6 @@ public class UsuarioServiceImpl implements UsuarioService {
         throw new UsuarioSemPermissaoException();
 
     }
+
+
 }

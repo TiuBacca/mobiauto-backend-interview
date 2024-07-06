@@ -12,4 +12,7 @@ public interface UsuarioRevendaRepository extends JpaRepository<UsuarioRevenda, 
     @Query("select ur from UsuarioRevenda ur where ur.usuario.id =:idUser and ur.revenda.id =:idRevenda")
     UsuarioRevenda findByUsuarioAndRevenda(@Param("idUser") Long idUser, @Param("idRevenda") Long idRevenda);
 
+    @Query("select ur from UsuarioRevenda ur where ur.usuario.id =:idUser")
+    List<UsuarioRevenda> findByUsuario(@Param("idUser") Long idUser);
+
 }

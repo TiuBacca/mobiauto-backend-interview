@@ -9,4 +9,5 @@ public interface UsuarioService {
 
     Usuario getUsuarioLogado()  throws Exception;
 
+
 }
