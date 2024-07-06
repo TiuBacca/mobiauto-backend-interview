@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd">
+
+
+    <changeSet id="mobiauto-dml_01.01" author="guilherme.baccarin">
+
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="cliente" schemaName="sistema"/>
+            </not>
+        </preConditions>
+
+        <createSequence sequenceName="cliente_id_seq" startValue="1" incrementBy="1"
+                        schemaName="sistema.cliente"/>
+
+        <createTable tableName="cliente" schemaName="sistema">
+            <column name="id" type="BIGINT" defaultValue="nextval('sistema.cliente_id_seq')">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="nome" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+
+        <addUniqueConstraint tableName="cliente" schemaName="sistema" columnNames="email"
+                             constraintName="unique_cliente_email"/>
+    </changeSet>
+
+    <changeSet id="mobiauto-dml_01.02" author="guilherme.baccarin">
+
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="revenda" schemaName="sistema"/>
+            </not>
+        </preConditions>
+
+        <createSequence sequenceName="revenda_id_seq" startValue="1" incrementBy="1"
+                        schemaName="sistema.revenda"/>
+
+        <createTable tableName="revenda" schemaName="sistema">
+            <column name="id" type="BIGINT" defaultValue="nextval('sistema.revenda_id_seq')">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="nome" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="cnpj" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+
+        <addUniqueConstraint tableName="revenda" schemaName="sistema" columnNames="cnpj"
+                             constraintName="unique_revenda_cnpj"/>
+    </changeSet>
+
+    <changeSet id="mobiauto-dml_01.03" author="guilherme.baccarin">
+
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="usuario" schemaName="sistema"/>
+            </not>
+        </preConditions>
+
+        <createSequence sequenceName="usuario_id_seq" startValue="1" incrementBy="1"
+                        schemaName="sistema.usuario"/>
+
+        <createTable tableName="usuario" schemaName="sistema">
+            <column name="id" type="BIGINT" defaultValue="nextval('sistema.usuario_id_seq')">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="nome" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="senha" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+
+        <addUniqueConstraint tableName="usuario" schemaName="sistema" columnNames="email"
+                             constraintName="unique_usuario_email"/>
+    </changeSet>
+
+    <changeSet id="mobiauto-dml_01.04" author="guilherme.baccarin">
+
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="veiculo" schemaName="sistema"/>
+            </not>
+        </preConditions>
+
+        <createSequence sequenceName="veiculo_id_seq" startValue="1" incrementBy="1"
+                        schemaName="sistema.veiculo"/>
+
+        <createTable tableName="veiculo" schemaName="sistema">
+
+            <column name="id" type="BIGINT" defaultValue="nextval('sistema.veiculo_id_seq')">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="marca" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="modelo" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="versao" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="ano" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="vendido" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+
+    </changeSet>
+
+    <changeSet id="mobiauto-dml_01.05" author="guilherme.baccarin">
+
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="usuario_revenda" schemaName="sistema"/>
+            </not>
+        </preConditions>
+
+        <createSequence sequenceName="usuario_revenda_id_seq" startValue="1" incrementBy="1"
+                        schemaName="sistema.usuario_revenda"/>
+
+        <createTable tableName="usuario_revenda" schemaName="sistema">
+
+            <column name="id" type="BIGINT" defaultValue="nextval('sistema.usuario_revenda_id_seq')">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="id_usuario" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="id_revenda" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="cargo" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="usuario_revenda" baseColumnNames="id_usuario" baseTableSchemaName="sistema"
+                                 constraintName="fk_usuario_revenda_usuario" referencedTableName="usuario"
+                                 referencedColumnNames="id" referencedTableSchemaName="sistema" />
+
+        <addForeignKeyConstraint baseTableName="usuario_revenda" baseColumnNames="id_revenda" baseTableSchemaName="sistema"
+                                 constraintName="fk_usuario_revenda_revenda" referencedTableName="revenda"
+                                 referencedColumnNames="id" referencedTableSchemaName="sistema" />
+
+        <addUniqueConstraint tableName="usuario_revenda" columnNames="id_usuario, id_revenda" schemaName="sistema" constraintName="unique_usuario_revenda_combination"/>
+    </changeSet>
+
+    <changeSet id="mobiauto-dml_01.06" author="guilherme.baccarin">
+
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="oportunidade" schemaName="sistema"/>
+            </not>
+        </preConditions>
+
+        <createSequence sequenceName="oportunidade_id_seq" startValue="1" incrementBy="1"
+                        schemaName="sistema.oportunidade"/>
+
+        <createTable tableName="oportunidade" schemaName="sistema">
+
+            <column name="id" type="BIGINT" defaultValue="nextval('sistema.oportunidade_id_seq')">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="status" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="id_responsavel" type="BIGINT">
+            </column>
+
+            <column name="id_veiculo" type="BIGINT">
+            </column>
+
+            <column name="abertura" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="conclusao" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="id_revenda" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="motivo" type="VARCHAR(500)">
+            </column>
+
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="oportunidade" baseColumnNames="id_responsavel" baseTableSchemaName="sistema"
+                                 constraintName="fk_oportunidade_responsavel" referencedTableName="usuario"
+                                 referencedColumnNames="id" referencedTableSchemaName="sistema" />
+
+        <addForeignKeyConstraint baseTableName="oportunidade" baseColumnNames="id_revenda" baseTableSchemaName="sistema"
+                                 constraintName="fk_oportunidade_revenda" referencedTableName="revenda"
+                                 referencedColumnNames="id" referencedTableSchemaName="sistema" />
+
+        <addForeignKeyConstraint baseTableName="oportunidade" baseColumnNames="id_veiculo" baseTableSchemaName="sistema"
+                                 constraintName="fk_oportunidade_veiculo" referencedTableName="veiculo"
+                                 referencedColumnNames="id" referencedTableSchemaName="sistema" />
+
+        <addUniqueConstraint tableName="usuario_revenda" columnNames="id_usuario, id_revenda" schemaName="sistema" constraintName="unique_usuario_revenda_combination"/>
+    </changeSet>
+
+</databaseChangeLog>

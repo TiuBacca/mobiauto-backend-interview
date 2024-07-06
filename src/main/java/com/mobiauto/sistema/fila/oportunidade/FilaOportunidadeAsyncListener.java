@@ -15,18 +15,13 @@ public class FilaOportunidadeAsyncListener {
     @RabbitListener(queues = QUEUE_NAME)
     public void processarMensagem(@Payload Oportunidade objeto) {
         System.out.println("Recebido objeto da fila: " + objeto);
-        // Aqui você pode realizar qualquer processamento necessário com o objeto recebido
-
-        // Exemplo de processamento assíncrono (simulação com sleep)
         realizarProcessamentoAssincrono(objeto);
     }
 
     private void realizarProcessamentoAssincrono(Oportunidade objeto) {
-        // Simulação de processamento assíncrono
         new Thread(() -> {
             try {
-                // Simular algum processamento demorado
-                Thread.sleep(5000); // Por exemplo, aguarda 5 segundos
+                Thread.sleep(5000);
                 System.out.println("Processamento assíncrono concluído para: " + objeto);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();

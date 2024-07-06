@@ -31,6 +31,6 @@ public class UsuarioRevenda {
 
     // Cenário onde um usuário pode ter diferentes cargos em diferentes revendas
     @Enumerated(EnumType.STRING)
-    @Column(name = "tipo")
+    @Column(name = "cargo")
     private CargoUsuario cargo;
 }
