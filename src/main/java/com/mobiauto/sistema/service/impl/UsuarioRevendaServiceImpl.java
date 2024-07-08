@@ -1,5 +1,6 @@
 package com.mobiauto.sistema.service.impl;
 
+import com.mobiauto.sistema.Util;
 import com.mobiauto.sistema.domain.Usuario;
 import com.mobiauto.sistema.domain.UsuarioRevenda;
 import com.mobiauto.sistema.enuns.CargoUsuario;
@@ -19,8 +20,8 @@ public class UsuarioRevendaServiceImpl implements UsuarioRevendaService {
 
     private final RevendaRepository revendaRepository;
     private final UsuarioRepository usuarioRepository;
-    private final UsuarioService usuarioService;
     private final UsuarioRevendaRepository usuarioRevendaRepository;
+    private final Util util;
 
     @Override
     public void salvarUsuarioRevenda(UsuarioRevendaRequest request) throws Exception {
@@ -76,7 +77,7 @@ public class UsuarioRevendaServiceImpl implements UsuarioRevendaService {
     }
 
     private void validaPermissaoAlterarCargoUsuario(UsuarioRevendaRequest request) throws Exception {
-        Usuario logado = usuarioService.getUsuarioLogado();
+        Usuario logado = util.getUsuarioLogado();
 
         if(request.getRevenda() == null || request.getRevenda().getId() == null){
             throw new RegistroIncompletoException("revenda");

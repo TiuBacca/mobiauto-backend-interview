@@ -19,6 +19,16 @@ public class UsuarioResource {
     private final UsuarioRevendaService usuarioRevendaService;
 
     @PostMapping("/salvar")
+    public ResponseEntity<?> login(@RequestBody UsuarioRequest request){
+        try {
+            usuarioService.salvarUsuario(request);
+            return ResponseEntity.status(HttpStatus.OK).body("Usuário salvo com sucesso.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/salvar")
     public ResponseEntity<?> salvarUsuario(@RequestBody UsuarioRequest request){
         try {
             usuarioService.salvarUsuario(request);

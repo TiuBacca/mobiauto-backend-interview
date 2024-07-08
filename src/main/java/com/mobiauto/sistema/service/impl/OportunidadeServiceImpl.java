@@ -6,6 +6,7 @@ import com.mobiauto.sistema.domain.Usuario;
 import com.mobiauto.sistema.domain.Veiculo;
 import com.mobiauto.sistema.exceptions.RegistroIncompletoException;
 import com.mobiauto.sistema.exceptions.RegistroNaoEncontradoException;
+import com.mobiauto.sistema.fila.oportunidade.FilaOportinudadeService;
 import com.mobiauto.sistema.repository.*;
 import com.mobiauto.sistema.request.OportunidadeRequest;
 import com.mobiauto.sistema.service.ClienteService;
@@ -14,10 +15,14 @@ import com.mobiauto.sistema.service.VeiculoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class OportunidadeServiceImpl implements OportunidadeService {
 
+    private final FilaOportinudadeService filaOportinudadeService;
     private final VeiculoService veiculoService;
     private final VeiculoRepository veiculoRepository;
     private final ClienteRepository clienteRepository;
@@ -29,7 +34,8 @@ public class OportunidadeServiceImpl implements OportunidadeService {
 
     @Override
     public void criarOportunidade(OportunidadeRequest request) throws Exception {
-        oportunidadeRepository.save(alimenteOportunidade(validaCriarNovaOportunidade(request)));
+        Oportunidade op = oportunidadeRepository.save(alimenteOportunidade(validaCriarNovaOportunidade(request)));
+        filaOportinudadeService.enviarParaFila(new ArrayList<>(List.of(op)));
     }
 
     @Override

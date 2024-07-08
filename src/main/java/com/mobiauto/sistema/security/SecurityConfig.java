@@ -15,9 +15,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-            .anyRequest().authenticated()
-            .and().formLogin() // Configuração do formulário de login
-            .and().logout().logoutSuccessUrl("/").permitAll(); // Configuração do logout
+                .antMatchers("/**").permitAll() // Permite acesso irrestrito a todas as URLs
+                .and()
+                .formLogin() // Configuração do formulário de login
+                .and()
+                .logout().logoutSuccessUrl("/").permitAll(); // Configuração do logout
+
     }
 
     @Bean

@@ -1,5 +1,7 @@
 package com.mobiauto.sistema.service.impl;
 
+import com.mobiauto.sistema.exceptions.LoginInvalidoException;
+import com.google.gson.Gson;
 import com.mobiauto.sistema.Util;
 import com.mobiauto.sistema.domain.Usuario;
 import com.mobiauto.sistema.domain.UsuarioRevenda;
@@ -13,11 +15,15 @@ import com.mobiauto.sistema.repository.UsuarioRevendaRepository;
 import com.mobiauto.sistema.request.RevendaRequest;
 import com.mobiauto.sistema.request.UsuarioRequest;
 import com.mobiauto.sistema.request.UsuarioRevendaRequest;
+import com.mobiauto.sistema.response.LoginResponse;
 import com.mobiauto.sistema.service.UsuarioRevendaService;
 import com.mobiauto.sistema.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +34,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     private final RevendaRepository revendaRepository;
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
+    private final Util util;
 
     @Override
     public void salvarUsuario(UsuarioRequest request) throws Exception {
@@ -49,11 +56,18 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
-    public Usuario getUsuarioLogado() throws Exception {
-        String emailLogado = Util.getEmailUsuarioLogado();
-        return usuarioRepository.findByEmail(emailLogado)
-                .orElseThrow(() -> new RegistroNaoEncontradoException("Usuário não encontrado para o email: " + emailLogado));
+    public LoginResponse login(UsuarioRequest request) throws Exception {
 
+        Optional<Usuario> usuario = usuarioRepository.findByEmail(request.getEmail());
+        if (usuario.isEmpty()) {
+            throw new RegistroNaoEncontradoException("Usuário");
+        }
+
+        if (usuario.get().getEmail().equals(request.getEmail())
+                && usuario.get().getSenha().equals(DigestUtils.md5Hex(request.getSenha()))) {
+            return LoginResponse.builder().token(Util.gerarToken(new Gson().toJson(request))).build();
+        }
+        throw new LoginInvalidoException();
     }
 
     private void validaSalvarUsuario(UsuarioRequest request) throws Exception {
@@ -106,7 +120,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
 
     private void validaPermissaoSalvarNovoUsuario(RevendaRequest request) throws Exception {
-        Usuario logado = getUsuarioLogado();
+        Usuario logado = util.getUsuarioLogado();
         UsuarioRevenda userRevenda = usuarioRevendaRepository.findByUsuarioAndRevenda(logado.getId(), request.getId());
         if(userRevenda != null ){
             if (userRevenda.getCargo() == CargoUsuario.ADMINISTRADOR || userRevenda.getCargo() == CargoUsuario.PROPRIETARIO){
